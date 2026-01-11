@@ -177,59 +177,10 @@ const BigSisHome = () => {
             </div>
 
             {/* Quick Topics */}
-            {messages.length <= 1 && (
-              <div className={styles.quickTopics}>
-                <p className={styles.quickTopicsLabel}>{t.quickTopicsLabel}</p>
-
-                <div className={styles.quickTopicsGrid}>
-                  {quickTopics.map((topic, index) => (
-                    <button
-                      key={index}
-                      className={styles.quickTopicBtn}
-                      onClick={() => handleSend(topic.message)}
-                    >
-                      <span className={styles.quickTopicEmoji}>{topic.emoji}</span>
-                      <span className={styles.quickTopicLabelText}>{topic.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
+            
 
             {/* Input Area */}
-            <div className={styles.inputArea}>
-              <div className={styles.inputWrapper}>
-                <input
-                  type="text"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                  placeholder={t.inputPlaceholder}
-                  className={styles.input}
-                  dir={lang === 'he' ? 'rtl' : 'ltr'}
-                />
-
-                <button
-                  type="button"
-                  onClick={() => handleSend()}
-                  className={styles.sendBtn}
-                  disabled={!input.trim()}
-                >
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
-                  </svg>
-                </button>
-              </div>
-
-              <p className={styles.disclaimer}>{t.disclaimer}</p>
-            </div>
+           
           </div>
         </div>
 
