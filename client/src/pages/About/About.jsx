@@ -255,9 +255,9 @@ export default function About() {
   };
 
   const team = [
-    { name: 'לנה אבו רומי', nameEn: 'Lana Abu Romi', avatar: LanaImg },
-    { name: 'קלאודין מסעוד', nameEn: 'Cloudine Massoud', avatar: CloudineImg },
-    { name: 'אין-בר סוריה', nameEn: 'Ein-Bar Surie', avatar: EinBarImg },
+    { name: 'לנא אבו רומי', nameEn: 'Lana Abu Romi', avatar: LanaImg },
+    { name: 'קלודין מסעוד', nameEn: 'Cloudine Massoud', avatar: CloudineImg },
+    { name: 'עין-בר סוריא', nameEn: 'Ein-Bar Surie', avatar: EinBarImg },
     { name: 'שקד נוטמן', nameEn: 'Shaked Nuttman', avatar: ShakedImg },
   ];
 
