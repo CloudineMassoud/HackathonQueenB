@@ -6,6 +6,9 @@ import pluginPromise from 'eslint-plugin-promise';
 
 export default [
   {
+    ignores: ['scripts/**'],  // Ignore utility scripts
+  },
+  {
     files: ['**/*.js'],
     languageOptions: {
       globals: globals.node,
