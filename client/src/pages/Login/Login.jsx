@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 
+import { supabase } from "../../services/supabaseClient";
+
+
 const Login = () => {
   const navigate = useNavigate();
   const [isSignUp, setIsSignUp] = useState(false);
@@ -22,52 +25,90 @@ const Login = () => {
     setError('');
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    if (isSignUp) {
-      // Sign up validation
-      if (!formData.username || !formData.email || !formData.age || !formData.password || !formData.confirmPassword) {
-        setError('נא למלא את כל השדות');
-        return;
-      }
-      if (formData.password !== formData.confirmPassword) {
-        setError('הסיסמאות אינן תואמות');
-        return;
-      }
-      if (formData.password.length < 6) {
-        setError('הסיסמה חייבת להכיל לפחות 6 תווים');
-        return;
-      }
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-        setError('נא להזין אימייל תקין');
-        return;
-      }
-      const ageNumber = Number(formData.age);
-      if (Number.isNaN(ageNumber) || ageNumber < 13 || ageNumber > 120) {
-        setError('נא להזין גיל בין 13 ל-120');
-        return;
-      }
-      // TODO: Call signup API
-      console.log('Sign up:', formData.username, formData.email, ageNumber, formData.password);
-      navigate('/chat');
-    } else {
-      // Sign in validation
-      if (!formData.username || !formData.password) {
-        setError('נא למלא את כל השדות');
-        return;
-      }
-      // TODO: Call login API
-      console.log('Sign in:', formData.username, formData.password);
-      navigate('/chat');
-    }
-  };
 
-  const handleGuestLogin = () => {
-    // TODO: Set guest mode in context/state
-    console.log('Guest login');
-    navigate('/chat');
-  };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
+
+  // -------------------- SIGN UP --------------------
+  if (isSignUp) {
+    if (
+      !formData.username ||
+      !formData.email ||
+      !formData.age ||
+      !formData.password ||
+      !formData.confirmPassword
+    ) {
+      setError("נא למלא את כל השדות");
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setError("הסיסמאות אינן תואמות");
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setError("הסיסמה חייבת להכיל לפחות 6 תווים");
+      return;
+    }
+
+    const ageNumber = Number(formData.age);
+    if (Number.isNaN(ageNumber) || ageNumber < 13 || ageNumber > 120) {
+      setError("נא להזין גיל בין 13 ל-120");
+      return;
+    }
+
+    const { error } = await supabase.auth.signUp({
+      email: formData.email,
+      password: formData.password,
+      options: {
+        data: {
+          username: formData.username,
+          age: ageNumber,
+        },
+      },
+    });
+
+    if (error) {
+      setError(error.message);
+      return;
+    }
+
+    navigate("/chat");
+    return;
+  }
+
+  // -------------------- SIGN IN --------------------
+  if (!formData.email || !formData.password) {
+    setError("נא למלא את כל השדות");
+    return;
+  }
+
+  const { error } = await supabase.auth.signInWithPassword({
+    email: formData.email,
+    password: formData.password,
+  });
+
+  if (error) {
+    setError("אימייל או סיסמה שגויים");
+    return;
+  }
+
+  navigate("/chat");
+};
+
+
+
+const handleGuestLogin = async () => {
+  const { data, error } = await supabase.auth.signInAnonymously();
+  if (error) {
+    setError(error.message);
+    return;
+  }
+  navigate("/chat");
+};
+
 
   return (
     <div style={styles.container}>
@@ -113,18 +154,23 @@ const Login = () => {
               </div>
             )}
 
+
             <div style={styles.inputGroup}>
-              <label style={styles.label}>שם משתמש</label>
+              <label style={styles.label}>
+                {isSignUp ? "שם משתמש" : "אימייל"}
+              </label>
+
               <input
-                type="text"
-                name="username"
-                value={formData.username}
+                type={isSignUp ? "text" : "email"}
+                name={isSignUp ? "username" : "email"}
+                value={isSignUp ? formData.username : formData.email}
                 onChange={handleInputChange}
-                placeholder="הזיני שם משתמש"
+                placeholder={isSignUp ? "הזיני שם משתמש" : "name@email.com"}
                 style={styles.input}
                 dir="rtl"
               />
             </div>
+
 
             {isSignUp && (
               <div style={styles.inputGroup}>

@@ -12,8 +12,8 @@ const app = express();
 app.use(cors({
   origin: (origin, callback) => {
     const allowedOrigins = [
-      'http://localhost:3000',
-      'http://127.0.0.1:3000',
+      'http://localhost:4000',
+      'http://127.0.0.1:4000',
       process.env.CLIENT_URL
     ].filter(Boolean);
     
@@ -31,7 +31,7 @@ app.use('/api/chat', chatRoutes);  // mount chat routes
 
 
 // Start server
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
     console.log(`BeSafe Server is running on port ${PORT}`);
 });

@@ -1,24 +1,28 @@
-import { createContext, useState } from 'react';
+import { createContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { LANG } from "../constants/languages";
+import { supabase } from "../services/supabaseClient";
+
 
 const BigSisContext = createContext();
 
-const BigSisProvider = ({ children }) => {
-  const [language, setLanguage] = useState(LANG.HE); // default to Hebrew for landing page copy
-  const [user, setUser] = useState(null);
+function BigSisProvider({ children }) {
+  const [session, setSession] = useState(null);
 
-  const value = {
-    language,
-    setLanguage,
-    user,
-    setUser,
-  };
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setSession(data.session));
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      setSession(newSession);
+    });
+
+    return () => sub.subscription.unsubscribe();
+  }, []);
 
     return (
-        <BigSisContext.Provider value={value}>
-            {children}
-        </BigSisContext.Provider>
+      <BigSisContext.Provider value={{ session, user: session?.user }}>
+        {children}
+      </BigSisContext.Provider>
     );
 };
 
