@@ -1,4 +1,4 @@
-import { useContext, useMemo, useState } from 'react';
+import { useContext, useMemo, useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router';
 import { BigSisContext } from '../../context/BigSisContext';
 import { LANG } from '../../constants/languages';
@@ -10,9 +10,8 @@ const copy = {
   [LANG.HE]: {
     direction: 'rtl',
     langLabel: '🌐 עברית',
-    nav: { home: 'בית', chat: 'Big Sis', content: 'תוכן', about: 'אודות', login: 'התחברות' },
+    nav: { chat: 'בואי נדבר', content: 'תוכן', about: 'אודות', login: 'התחברות', menuHint: 'בקרוב עוד תכנים 💜' },
     hero: {
-      titlePrefix: 'יש לך',
       highlight: 'Big Sis',
       titleSuffix: 'שתמיד כאן בשבילך',
       subtitle: 'מקום בטוח לדבר על כל מה שעל הלב - על מערכות יחסים, גוף, רגשות, ושאלות שקשה לשאול. בלי שיפוטיות, בלי לחץ, בקצב שלך.',
@@ -51,14 +50,14 @@ const copy = {
       safetyTitle: 'במצב חירום?',
       safetyText: 'אם את/ה במצוקה או מחשבות על פגיעה עצמית, אנחנו כאן - אבל גם חשוב לדבר עם מישהו אמיתי.',
       emergencyLabel: 'ער"ן - 1201',
-      footerLinks: ['אודות', 'פרטיות', 'תנאי שימוש', 'צור קשר'],
+      footerLinks: ['אודות', 'פרטיות', 'צור קשר'],
       footerNote: '💜 נבנה באהבה כדי לעזור'
     }
   },
   [LANG.EN]: {
     direction: 'ltr',
     langLabel: '🌐 English',
-    nav: { home: 'Home', chat: 'Big Sis', content: 'Content', about: 'About', login: 'Login' },
+    nav: { chat: 'Lets chat', content: 'Content', about: 'About us', login: 'Login', menuHint: 'More coming soon 💜' },
     hero: {
       titlePrefix: 'You have a',
       highlight: 'Big Sis',
@@ -99,18 +98,45 @@ const copy = {
       safetyTitle: 'In an emergency?',
       safetyText: "If you're in distress or having thoughts of self-harm, we're here — but it's also important to talk to a real person.",
       emergencyLabel: 'ERAN - 1201',
-      footerLinks: ['About', 'Privacy', 'Terms', 'Contact'],
+      footerLinks: ['About', 'Privacy', 'Contact'],
       footerNote: '💜 Built with love to help'
     }
   }
 };
 
+const CONTENT_ITEMS = [
+  { to: "/content/body", label: "דימוי גוף", labelEn: "Body Image", emoji: "💗" },
+  { to: "/content/relationships", label: "מערכות יחסים", labelEn: "Relationships", emoji: "🤝" },
+  { to: "/content/intimacy", label: "אינטימיות", labelEn: "Intimacy", emoji: "🤍" },
+  { to: "/content/nutrition", label: "תזונה", labelEn: "Nutrition", emoji: "🥗" },
+];
+
 const BigSisLanding = () => {
   const [hoveredCard, setHoveredCard] = useState(null);
+  const [contentDropdownOpen, setContentDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
   const { language, setLanguage } = useContext(BigSisContext);
 
   const activeCopy = useMemo(() => copy[language] || copy[LANG.HE], [language]);
   const handleToggleLanguage = () => setLanguage(language === LANG.HE ? LANG.EN : LANG.HE);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setContentDropdownOpen(false);
+      }
+    };
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') setContentDropdownOpen(false);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEsc);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEsc);
+    };
+  }, []);
 
   return (
     <div dir={activeCopy.direction} style={{ ...styles.container, direction: activeCopy.direction }}>
@@ -127,9 +153,55 @@ const BigSisLanding = () => {
           <span style={styles.logoText}>Big Sis</span>
         </Link>
         <div style={styles.navLinks}>
-          <Link to="/" style={styles.navLinkActive}>{activeCopy.nav.home}</Link>
           <Link to="/chat" style={styles.navLink}>{activeCopy.nav.chat}</Link>
-          <Link to="/content" style={styles.navLink}>{activeCopy.nav.content}</Link>
+
+          {/* Content Dropdown */}
+          <div style={styles.dropdown} ref={dropdownRef}>
+            <button
+              type="button"
+              style={{
+                ...styles.navLink,
+                ...styles.dropdownBtn,
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+              }}
+              onClick={() => setContentDropdownOpen(v => !v)}
+              aria-haspopup="menu"
+              aria-expanded={contentDropdownOpen}
+            >
+              {activeCopy.nav.content}
+              <span style={{ transition: 'transform 180ms ease', transform: contentDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>▾</span>
+            </button>
+
+            <div
+              style={{
+                ...styles.dropdownMenu,
+                opacity: contentDropdownOpen ? 1 : 0,
+                transform: contentDropdownOpen ? 'translateY(0) scale(1)' : 'translateY(-6px) scale(0.98)',
+                pointerEvents: contentDropdownOpen ? 'auto' : 'none',
+              }}
+              role="menu"
+            >
+              {CONTENT_ITEMS.map((item) => (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  style={styles.dropdownItem}
+                  onClick={() => setContentDropdownOpen(false)}
+                  role="menuitem"
+                >
+                  <span style={styles.itemEmoji}>{item.emoji}</span>
+                  <span>{language === LANG.EN ? item.labelEn : item.label}</span>
+                </Link>
+              ))}
+              <div style={styles.menuHint}>{activeCopy.nav.menuHint}</div>
+            </div>
+          </div>
+
           <Link to="/about" style={styles.navLink}>{activeCopy.nav.about}</Link>
         </div>
         <div style={styles.navActions}>
@@ -168,123 +240,11 @@ const BigSisLanding = () => {
             </Link>
           </div>
 
-          <div style={styles.trustBadges}>
-            {activeCopy.hero.trust.map((item, idx) => (
-              <div key={idx} style={styles.badge}>{item}</div>
-            ))}
-          </div>
+
         </div>
       </header>
 
-      {/* Features Grid */}
-      <section style={styles.features}>
-        <h2 style={styles.sectionTitle}>{activeCopy.sections.featuresTitle}</h2>
 
-        <div style={styles.featuresGrid}>
-          {activeCopy.features.map((feature) => (
-            <Link
-              key={feature.id}
-              to={feature.link}
-              style={{
-                ...styles.featureCard,
-                ...(feature.primary ? styles.primaryCard : {}),
-                transform: hoveredCard === feature.id ? 'translateY(-8px) scale(1.02)' : 'translateY(0)',
-                boxShadow: hoveredCard === feature.id
-                  ? '0 25px 50px rgba(168, 85, 247, 0.25)'
-                  : '0 10px 40px rgba(0, 0, 0, 0.08)',
-              }}
-              onMouseEnter={() => setHoveredCard(feature.id)}
-              onMouseLeave={() => setHoveredCard(null)}
-            >
-              <div
-                style={{
-                  ...styles.featureIcon,
-                  background: feature.color,
-                }}
-              >
-                {feature.icon}
-              </div>
-              <h3 style={styles.featureTitle}>{feature.title}</h3>
-              <p style={styles.featureDesc}>{feature.description}</p>
-              <div style={styles.featureArrow}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M5 12h14M12 5l7 7-7 7"/>
-                </svg>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* Quick Chat Preview */}
-      <section style={styles.preview}>
-        <div style={styles.previewContent}>
-          <div style={styles.previewText}>
-            <h2 style={styles.previewTitle}>
-              {activeCopy.sections.previewTitleParts ? (
-                <>
-                  {activeCopy.sections.previewTitleParts[0]}{' '}
-                  <span style={styles.highlight}>{activeCopy.sections.previewTitleParts[1]}</span>
-                  {activeCopy.sections.previewTitleParts[2] ? ` ${activeCopy.sections.previewTitleParts[2]}` : ''}
-                </>
-              ) : null}
-            </h2>
-            <p style={styles.previewDesc}>
-              {activeCopy.sections.previewDesc}
-            </p>
-            <ul style={styles.previewList}>
-              {activeCopy.sections.previewBullets.map((item, idx) => (
-                <li key={idx} style={styles.previewItem}>
-                  <span style={styles.checkIcon}>✓</span>
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div style={styles.previewChat}>
-            <div style={styles.chatWindow}>
-              <div style={styles.chatHeader}>
-                <div style={styles.chatAvatar}>👩‍🦰</div>
-                <div>
-                  <div style={styles.chatName}>Big Sis</div>
-                  <div style={styles.chatStatus}>
-                    <span style={styles.onlineDot}></span>
-                    {activeCopy.sections.chatHeaderStatus}
-                  </div>
-                </div>
-              </div>
-              <div style={styles.chatMessages}>
-                <div style={styles.sisMessage}>
-                  {activeCopy.sections.chatMessages[0]}
-                </div>
-                <div style={styles.userMessage}>
-                  {activeCopy.sections.chatMessages[1]}
-                </div>
-                <div style={styles.sisMessage}>
-                  {activeCopy.sections.chatMessages[2]}
-                </div>
-              </div>
-              <div style={styles.chatInput}>
-                <span style={styles.chatPlaceholder}>{activeCopy.sections.chatPlaceholder}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section style={styles.testimonials}>
-        <h2 style={styles.sectionTitle}>{activeCopy.sections.testimonialsTitle}</h2>
-        <div style={styles.testimonialGrid}>
-          {activeCopy.sections.testimonials.map((item, index) => (
-            <div key={index} style={styles.testimonialCard}>
-              <span style={styles.testimonialEmoji}>{item.emoji}</span>
-              <p style={styles.testimonialText}>&ldquo;{item.text}&rdquo;</p>
-            </div>
-          ))}
-        </div>
-      </section>
 
       {/* Safety Banner */}
       <section style={styles.safetyBanner}>
@@ -313,8 +273,7 @@ const BigSisLanding = () => {
           <div style={styles.footerLinks}>
             <Link to="/about" style={styles.footerLink}>{activeCopy.sections.footerLinks[0]}</Link>
             <Link to="/privacy" style={styles.footerLink}>{activeCopy.sections.footerLinks[1]}</Link>
-            <Link to="/terms" style={styles.footerLink}>{activeCopy.sections.footerLinks[2]}</Link>
-            <Link to="/contact" style={styles.footerLink}>{activeCopy.sections.footerLinks[3]}</Link>
+            <Link to="/contact" style={styles.footerLink}>{activeCopy.sections.footerLinks[2]}</Link>
           </div>
           <p style={styles.footerNote}>
             {activeCopy.sections.footerNote}
@@ -322,8 +281,8 @@ const BigSisLanding = () => {
         </div>
       </footer>
 
-        {/* Global Styles */}
-        <style>{`
+      {/* Global Styles */}
+      <style>{`
           @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&display=swap');
 
           * {
@@ -506,6 +465,59 @@ const styles = {
     fontSize: '14px',
     fontWeight: '600',
     boxShadow: '0 4px 15px rgba(168, 85, 247, 0.3)',
+    textDecoration: 'none',
+  },
+
+  // Dropdown styles
+  dropdown: {
+    position: 'relative',
+  },
+  dropdownBtn: {
+    fontFamily: "'Heebo', sans-serif",
+  },
+  dropdownMenu: {
+    position: 'absolute',
+    top: 'calc(100% + 10px)',
+    right: 0,
+    minWidth: '220px',
+    background: 'rgba(255, 255, 255, 0.95)',
+    backdropFilter: 'blur(16px)',
+    border: '1px solid rgba(168, 85, 247, 0.18)',
+    borderRadius: '16px',
+    boxShadow: '0 18px 45px rgba(168, 85, 247, 0.12), 0 6px 18px rgba(0, 0, 0, 0.08)',
+    padding: '10px',
+    zIndex: 90,
+    transformOrigin: 'top right',
+    transition: 'opacity 160ms ease, transform 160ms ease',
+  },
+  dropdownItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    padding: '10px 12px',
+    borderRadius: '14px',
+    textDecoration: 'none',
+    color: '#4b5563',
+    fontWeight: '500',
+    fontSize: '14px',
+    transition: 'background 120ms ease, color 120ms ease',
+  },
+  itemEmoji: {
+    width: '32px',
+    height: '32px',
+    borderRadius: '12px',
+    display: 'grid',
+    placeItems: 'center',
+    background: 'linear-gradient(135deg, rgba(249, 168, 212, 0.7), rgba(192, 132, 252, 0.55))',
+    border: '1px solid rgba(168, 85, 247, 0.18)',
+  },
+  menuHint: {
+    marginTop: '10px',
+    paddingTop: '10px',
+    borderTop: '1px solid rgba(168, 85, 247, 0.12)',
+    fontSize: '12px',
+    color: '#9ca3af',
+    textAlign: 'center',
   },
 
   // Hero Section

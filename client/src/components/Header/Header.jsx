@@ -4,11 +4,28 @@ import { BigSisContext } from "../../context/BigSisContext";
 import { LANG } from "../../constants/languages";
 import styles from "./Header.module.css";
 
+const COPY = {
+  [LANG.HE]: {
+    login: 'התחברות',
+    chat: 'בואי נדבר',
+    content: 'תוכן',
+    about: 'אודות',
+    menuHint: 'בקרוב עוד תכנים 💜'
+  },
+  [LANG.EN]: {
+    login: 'Login',
+    chat: 'Lets chat',
+    content: 'Content',
+    about: 'About us',
+    menuHint: 'More coming soon 💜'
+  }
+};
+
 const CONTENT_ITEMS = [
-  { to: "/content/body", label: "דימוי גוף", emoji: "💗" },
-  { to: "/content/relationships", label: "מערכות יחסים", emoji: "🤝" },
-  { to: "/content/intimacy", label: "אינטימיות", emoji: "🤍" },
-  { to: "/content/nutrition", label: "תזונה", emoji: "🥗" },
+  { to: "/content/body", labelHe: "דימוי גוף", labelEn: "Body Image", emoji: "💗" },
+  { to: "/content/relationships", labelHe: "מערכות יחסים", labelEn: "Relationships", emoji: "🤝" },
+  { to: "/content/intimacy", labelHe: "אינטימיות", labelEn: "Intimacy", emoji: "🤍" },
+  { to: "/content/nutrition", labelHe: "תזונה", labelEn: "Nutrition", emoji: "🥗" },
 ];
 
 export default function Header() {
@@ -59,29 +76,27 @@ export default function Header() {
               `${styles.navLink} ${isActive ? styles.active : ""}`
             }
           >
-            Lets chat
+            {COPY[language]?.chat || 'Lets chat'}
           </NavLink>
 
           <div className={styles.dropdown} ref={menuRef}>
             <button
               type="button"
-              className={`${styles.navLink} ${styles.dropdownBtn} ${
-                isContentActive ? styles.active : ""
-              } ${open ? styles.dropdownOpen : ""}`}
+              className={`${styles.navLink} ${styles.dropdownBtn} ${isContentActive ? styles.active : ""
+                } ${open ? styles.dropdownOpen : ""}`}
               onClick={() => setOpen((v) => !v)}
               aria-haspopup="menu"
               aria-expanded={open}
             >
-              Content
+              {COPY[language]?.content || 'Content'}
               <span className={styles.caret} aria-hidden="true">
                 ▾
               </span>
             </button>
 
             <div
-              className={`${styles.dropdownMenu} ${
-                open ? styles.menuOpen : styles.menuClosed
-              }`}
+              className={`${styles.dropdownMenu} ${open ? styles.menuOpen : styles.menuClosed
+                }`}
               role="menu"
             >
               {CONTENT_ITEMS.map((item) => (
@@ -95,11 +110,11 @@ export default function Header() {
                   role="menuitem"
                 >
                   <span className={styles.itemEmoji}>{item.emoji}</span>
-                  <span className={styles.itemLabel}>{item.label}</span>
+                  <span className={styles.itemLabel}>{language === LANG.EN ? item.labelEn : item.labelHe}</span>
                 </NavLink>
               ))}
 
-              <div className={styles.menuHint}>בקרוב עוד תכנים 💜</div>
+              <div className={styles.menuHint}>{COPY[language]?.menuHint || 'בקרוב עוד תכנים 💜'}</div>
             </div>
           </div>
 
@@ -109,13 +124,18 @@ export default function Header() {
               `${styles.navLink} ${isActive ? styles.active : ""}`
             }
           >
-            About us
+            {COPY[language]?.about || 'About us'}
           </NavLink>
         </nav>
 
-        <button className={styles.langBtn} type="button" onClick={toggleLanguage}>
-          🌐 {language === LANG.HE ? "עברית" : "English"}
-        </button>
+        <div className={styles.navActions}>
+          <button className={styles.langBtn} type="button" onClick={toggleLanguage}>
+            🌐 {language === LANG.HE ? "עברית" : "English"}
+          </button>
+          <Link to="/login" className={styles.loginBtn}>
+            {COPY[language]?.login || 'Login'}
+          </Link>
+        </div>
       </div>
     </header>
   );
