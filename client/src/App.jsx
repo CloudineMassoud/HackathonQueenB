@@ -3,6 +3,7 @@ import RootLayout from "./layouts/RootLayout.jsx";
 import LandingPage from "./pages/LandingPage/LandingPage";
 import BigSisHome from "./pages/BigSisHome/BigSisHome";
 import About from "./pages/About/About";
+import Login from "./pages/Login/Login";
 
 import BodyPositivity from "./pages/Content/BodyPositivity";
 import Intimacy from "./pages/Content/Intimacy";
@@ -12,8 +13,9 @@ import Relationships from "./pages/Content/Relationships";
 function App() {
   return (
     <Routes>
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/login" element={<Login />} />
       <Route element={<RootLayout />}>
-        <Route path="/" element={<LandingPage />} />
         <Route path="/chat" element={<BigSisHome />} />
 
         {/* Content */}

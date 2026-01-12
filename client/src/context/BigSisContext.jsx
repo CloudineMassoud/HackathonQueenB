@@ -8,6 +8,7 @@ const BigSisContext = createContext();
 
 function BigSisProvider({ children }) {
   const [session, setSession] = useState(null);
+  const [language, setLanguage] = useState(LANG.HE);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSession(data.session));
@@ -20,7 +21,7 @@ function BigSisProvider({ children }) {
   }, []);
 
     return (
-      <BigSisContext.Provider value={{ session, user: session?.user }}>
+      <BigSisContext.Provider value={{ session, user: session?.user, language, setLanguage }}>
         {children}
       </BigSisContext.Provider>
     );
