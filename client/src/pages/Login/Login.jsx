@@ -26,88 +26,88 @@ const Login = () => {
   };
 
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError("");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
 
-  // -------------------- SIGN UP --------------------
-  if (isSignUp) {
-    if (
-      !formData.username ||
-      !formData.email ||
-      !formData.age ||
-      !formData.password ||
-      !formData.confirmPassword
-    ) {
+    // -------------------- SIGN UP --------------------
+    if (isSignUp) {
+      if (
+        !formData.username ||
+        !formData.email ||
+        !formData.age ||
+        !formData.password ||
+        !formData.confirmPassword
+      ) {
+        setError("נא למלא את כל השדות");
+        return;
+      }
+
+      if (formData.password !== formData.confirmPassword) {
+        setError("הסיסמאות אינן תואמות");
+        return;
+      }
+
+      if (formData.password.length < 6) {
+        setError("הסיסמה חייבת להכיל לפחות 6 תווים");
+        return;
+      }
+
+      const ageNumber = Number(formData.age);
+      if (Number.isNaN(ageNumber) || ageNumber < 13 || ageNumber > 120) {
+        setError("נא להזין גיל בין 13 ל-120");
+        return;
+      }
+
+      const { error } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            username: formData.username,
+            age: ageNumber,
+          },
+        },
+      });
+
+      if (error) {
+        setError(error.message);
+        return;
+      }
+
+      navigate("/chat");
+      return;
+    }
+
+    // -------------------- SIGN IN --------------------
+    if (!formData.email || !formData.password) {
       setError("נא למלא את כל השדות");
       return;
     }
 
-    if (formData.password !== formData.confirmPassword) {
-      setError("הסיסמאות אינן תואמות");
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      setError("הסיסמה חייבת להכיל לפחות 6 תווים");
-      return;
-    }
-
-    const ageNumber = Number(formData.age);
-    if (Number.isNaN(ageNumber) || ageNumber < 13 || ageNumber > 120) {
-      setError("נא להזין גיל בין 13 ל-120");
-      return;
-    }
-
-    const { error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signInWithPassword({
       email: formData.email,
       password: formData.password,
-      options: {
-        data: {
-          username: formData.username,
-          age: ageNumber,
-        },
-      },
     });
 
     if (error) {
-      setError(error.message);
+      setError("אימייל או סיסמה שגויים");
       return;
     }
 
     navigate("/chat");
-    return;
-  }
-
-  // -------------------- SIGN IN --------------------
-  if (!formData.email || !formData.password) {
-    setError("נא למלא את כל השדות");
-    return;
-  }
-
-  const { error } = await supabase.auth.signInWithPassword({
-    email: formData.email,
-    password: formData.password,
-  });
-
-  if (error) {
-    setError("אימייל או סיסמה שגויים");
-    return;
-  }
-
-  navigate("/chat");
-};
+  };
 
 
 
-const handleGuestLogin = async () => {
-  const { data, error } = await supabase.auth.signInAnonymously();
-  if (error) {
-    setError(error.message);
-    return;
-  }
-  navigate("/chat");
-};
+  const handleGuestLogin = async () => {
+    const { data, error } = await supabase.auth.signInAnonymously();
+    if (error) {
+      setError(error.message);
+      return;
+    }
+    navigate("/chat");
+  };
 
 
   return (
@@ -140,7 +140,7 @@ const handleGuestLogin = async () => {
               {isSignUp ? 'הצטרפי אלינו' : 'שמחים לראות אותך'}
             </h1>
             <p style={styles.subtitle}>
-              {isSignUp 
+              {isSignUp
                 ? 'צרי חשבון כדי לשמור את השיחות שלך'
                 : 'התחברי כדי להמשיך את השיחה'}
             </p>
@@ -240,8 +240,8 @@ const handleGuestLogin = async () => {
               </div>
             )}
 
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               style={styles.submitBtn}
               onMouseEnter={(e) => {
                 e.target.style.transform = 'scale(1.02)';
@@ -262,7 +262,7 @@ const handleGuestLogin = async () => {
           </div>
 
           {/* Guest Login */}
-          <button 
+          <button
             onClick={handleGuestLogin}
             style={styles.guestBtn}
             onMouseEnter={(e) => {

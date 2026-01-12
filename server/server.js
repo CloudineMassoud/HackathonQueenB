@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 dotenv.config(); // load env var
 
 import chatRoutes from './routes/chat.js';
+import ragRoutes from './routes/rag.js';
 
 const app = express();
 
@@ -17,6 +18,8 @@ app.use(cors({
       'http://localhost:4001',
       'http://localhost:5173',
       'http://127.0.0.1:3000',
+      'http://localhost:5000',
+      'http://127.0.0.1:5000',
       'http://127.0.0.1:4000',
       'http://127.0.0.1:4001',
       'http://127.0.0.1:5173',
@@ -34,10 +37,11 @@ app.use(cors({
 
 app.use(express.json());
 app.use('/api/chat', chatRoutes);  // mount chat routes
+app.use('/api/rag', ragRoutes);    // mount RAG routes
 
 
 // Start server
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
-    console.log(`BeSafe Server is running on port ${PORT}`);
+  console.log(`BeSafe Server is running on port ${PORT}`);
 });
