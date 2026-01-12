@@ -20,11 +20,11 @@ function BigSisProvider({ children }) {
     return () => sub.subscription.unsubscribe();
   }, []);
 
-    return (
-      <BigSisContext.Provider value={{ session, user: session?.user, language, setLanguage }}>
-        {children}
-      </BigSisContext.Provider>
-    );
+  return (
+    <BigSisContext.Provider value={{ session, user: session?.user, language, setLanguage }}>
+      {children}
+    </BigSisContext.Provider>
+  );
 };
 
 BigSisProvider.propTypes = {
