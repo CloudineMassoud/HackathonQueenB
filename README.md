@@ -116,6 +116,7 @@ Team Members:
 ### Clone the Repository
 
 ```bash
-git clone 
+git clone https://github.com/CloudineMassoud/HackathonQueenB.git
 cd HackathonQueenB
+
 
